@@ -133,6 +133,8 @@ int main(int argc, char* argv[]){
 
     if(argc!=2) {
 	printf("error argument!! \n");
+	printf("./like like \n");
+	printf("./like people_list \n");
 	return 0;
     }
     
@@ -141,7 +143,7 @@ int main(int argc, char* argv[]){
     if( strcmp(argv[1],"like")== 0) {
 	likes_most(userID);
     }
-    else if( strcmp(argv[1],"people")==0) {
+    else if( strcmp(argv[1],"people_list")==0) {
 	all_pepoles();
     }
 
