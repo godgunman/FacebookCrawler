@@ -38,10 +38,15 @@ def fetch_core(uid, access_token):
 
 # fetch profile picture
 
-    f = open('data/profile/%s_picture.png'%uid,"wb")
-    f.write(urllib.urlopen('https://graph.facebook.com/%s/picture?type=large'%uid ).read())
-    f.close()
+    if os.path.isfile('data/profile/%s_picture_large.png'%uid) == False:
+        f = open('data/profile/%s_picture_large.png'%uid,"wb")
+	f.write(urllib.urlopen('https://graph.facebook.com/%s/picture?type=large'%uid ).read())
+	f.close()
 
+    if os.path.isfile('data/profile/%s_picture.png'%uid) == False:
+	f = open('data/profile/%s_picture.png'%uid,"wb")
+	f.write(urllib.urlopen('https://graph.facebook.com/%s/picture'%uid ).read())
+	f.close()
 
 if __name__ == '__main__':
    
