@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string>
+#include <stdlib.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
@@ -34,6 +35,7 @@ int main (int argc, const char * argv[])
     sf::Text likeButtonText;
     sf::IntRect likeButtonRect;
     sf::String likeButtonString;
+    
     // Start the game loop
     while (window.isOpen())
     {
