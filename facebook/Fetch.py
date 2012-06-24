@@ -39,7 +39,7 @@ def fetch_core(file_dir, url, access_token):
 	data = jdata['data']
 	for sub_data in data:
 	    pid = sub_data['id']
-	    FetchPostsDetail.fetch_core(pid,access_token)
+	    FetchPostsDetail.fetch_core(pid,access_token, browser)
 	
 	url = jdata['paging']['next']
 	print url

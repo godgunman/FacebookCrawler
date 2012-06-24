@@ -10,7 +10,15 @@ import json
 import Token
 import FileUtility
 
-def fetch_core(post_id, access_token):
+def try_brower(browser, url):
+    try:
+	res = browser.open(url)
+    except:
+	print "try, again"
+	res = browser.open(url)
+    return res
+
+def fetch_core(post_id, access_token, browser):
     
     if os.path.isdir("data/posts/"+post_id) == False:
         os.mkdir("data/posts/"+post_id)
@@ -20,23 +28,15 @@ def fetch_core(post_id, access_token):
 
     print 'In FetchPostsDetail.py parse' + post_id 
 
-
-    # Initialize the needed modules
-    CHandler = urllib2.HTTPCookieProcessor(cookielib.CookieJar())
-    browser = urllib2.build_opener(CHandler)
-    browser.addheaders = [('User-agent', 'InFB - ruel@ruel.me - http://ruel.me')]
-    urllib2.install_opener(browser)
-
     url = 'https://graph.facebook.com/'+post_id+ ('&access_token=%s' % access_token)
-    res = browser.open(url)
+    res = try_brower(browser, url)
     fres = res.read()
     jdata = json.loads(fres)
     fres = json.dumps(jdata, ensure_ascii=False)
-
     FileUtility.write("data/posts/"+post_id+"/content.json",fres)
 
     url = 'https://graph.facebook.com/'+post_id+'/likes'+ ('&access_token=%s' % access_token)
-    res = browser.open(url)
+    res = try_brower(browser, url)
     fres = res.read()
     jdata = json.loads(fres)
     fres = json.dumps(jdata, ensure_ascii=False)
@@ -44,13 +44,19 @@ def fetch_core(post_id, access_token):
 
 
     url = 'https://graph.facebook.com/'+post_id+'/comments'+ ('&access_token=%s' % access_token)
-    res = browser.open(url)
+    res = try_brower(browser, url)
     fres = res.read()
     jdata = json.loads(fres)
     fres = json.dumps(jdata, ensure_ascii=False)
     FileUtility.write("data/posts/"+post_id+"/comments.json",fres)
 
 if __name__ == '__main__':
+    
+    # Initialize the needed modules
+    CHandler = urllib2.HTTPCookieProcessor(cookielib.CookieJar())
+    browser = urllib2.build_opener(CHandler)
+    browser.addheaders = [('User-agent', 'InFB - ruel@ruel.me - http://ruel.me')]
+    urllib2.install_opener(browser)
 
     FileUtility.user = 'godgunman'
     FileUtility.make_data_path()
@@ -59,4 +65,4 @@ if __name__ == '__main__':
     passw = 'plumggmtutu'
     token = Token.get(user, passw)
 
-    fetch_core('100000154563058_407470182627805', token)
+    fetch_core('100000154563058_407470182627805', token, browser)
