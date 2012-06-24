@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string>
+#include <vector>
 #include <stdlib.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -7,6 +8,8 @@
 #include "ResourcePath.hpp"
 
 using namespace std;
+
+vector<sf::Image> loadImages();
 
 int main (int argc, const char * argv[])
 {
@@ -51,22 +54,21 @@ int main (int argc, const char * argv[])
                 window.close();
     		if (event.type == sf::Event::Closed)
                 window.close();
-
+            sf::Vector2i position = sf::Mouse::getPosition(window);
             if(status != 3){
-                sf::Vector2i position = sf::Mouse::getPosition(window);
                 printf("%d %d\n", position.x, position.y);
-                if(position.x >= 153 && position.x <= 548 && position.y >= 63 && position.y <= 98 && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status != 3){
+                if(position.x >= 153 && position.x <= 548 && position.y >= 63 && position.y <= 98 && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status < 3){
                     status = 1;
                 }
-                if(position.x >= 153 && position.x <= 548 && position.y >= 104 && position.y <= 139 && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status != 3){
+                if(position.x >= 153 && position.x <= 548 && position.y >= 104 && position.y <= 139 && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status < 3){
                     status = 2;
                 }
                 
-                if((position.x < 153 || position.x > 548 || position.y < 63 || position.y > 139) && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status != 3){
+                if((position.x < 153 || position.x > 548 || position.y < 63 || position.y > 139) && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status < 3){
                     status = 0;
                 }
                 
-                if(position.x >= 153 && position.x <= 548 && position.y >= 163 && position.y <= 200 && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                if(position.x >= 153 && position.x <= 548 && position.y >= 163 && position.y <= 200 && sf::Mouse::isButtonPressed(sf::Mouse::Left) && status != 4){
                     if(userPassword.getSize() > 0 && userID.getSize() > 0) status = 3;
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Back)){
@@ -78,7 +80,7 @@ int main (int argc, const char * argv[])
                     }
                 }
                 if(event.type == sf::Event::TextEntered){
-                    if(event.text.unicode < 128 && status == 1){
+                    if(status == 1){
                         userID += static_cast<char>(event.text.unicode);
                     }
                 }
@@ -88,11 +90,11 @@ int main (int argc, const char * argv[])
                     }
                 }
             }else if(status == 3){
-                likeButtonRect = likeButton.getTextureRect();
-                if(likeButtonRect.contains(sf::Mouse::getPosition(window)) && sf::Mouse::isButtonPressed(sf::Mouse::Left)) printf("Yes");
-            
+                if(position.x >= 153 && position.x <= 548 && position.y >= 163 && position.y <= 200 && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                    status = 4;
+                }
             }else{
-            
+                ;
             }
             
         }
@@ -109,7 +111,12 @@ int main (int argc, const char * argv[])
                 sprite.setTexture(texture);
                 break;
             case 3:
-                if(!texture.loadFromFile(resourcePath() + "over.png"))
+                if(!texture.loadFromFile(resourcePath() + "button.png"))
+                    return EXIT_FAILURE;
+                sprite.setTexture(texture);
+                break;
+            case 4:
+                if(!texture.loadFromFile(resourcePath() + "likes_graph.png"))
                     return EXIT_FAILURE;
                 sprite.setTexture(texture);
                 break;
@@ -124,9 +131,10 @@ int main (int argc, const char * argv[])
     	
     	window.clear();
     	// Draw the sprite
-    	if(status != 3){
+    	if(status < 3){
             window.draw(sprite);
             // Draw the string
+            
             idText.setString(userID);
             idText.setPosition(160, 68);
             idText.setColor(sf::Color::Black);
@@ -140,27 +148,36 @@ int main (int argc, const char * argv[])
             passwordText.setCharacterSize(20);
             if(userPassword.getSize() != 0) window.draw(passwordText);
             
-        }
-        else{   
-            sf::Vector2i likeButtonPosition(153, 63);
-            sf::Vector2i likeButtonSize(400, 40);
-            likeButton.setPosition((sf::Vector2f)likeButtonPosition);
-            likeButton.setSize((sf::Vector2f) likeButtonSize);
-            likeButton.setFillColor(sf::Color::Cyan);
-            likeButton.setTextureRect(sf::IntRect(likeButtonPosition, likeButtonSize));
-            likeButtonString = sf::String("Who Likes Me?");
-            likeButtonText.setString(likeButtonString);
-            likeButtonText.setColor(sf::Color::Blue);
-            likeButtonText.setCharacterSize(25);
-            likeButtonText.setPosition(160, 68);
+        }else if(status == 4)
+        {
+            //TODO!!!!!
+            vector<sf::Image> images = loadImages();
+            vector<sf::Texture> textures;
+            vector<sf::Sprite> sprites;
+            sprites.resize(10);
+            textures.resize(10);
+            for(int i = 0; i < 10; i++){
+                textures[i].loadFromImage(images[i]);
+                sprites[i].setTexture(textures[i]);
+                //set sprites position, size;
+            }
             window.draw(sprite);
-            window.draw(likeButton);
-            window.draw(likeButtonText);
-            
+        }
+        else{ 
+            window.draw(sprite);
         }
         // Update the window
         window.display();
     }
 
 	return EXIT_SUCCESS;
+}
+
+vector<sf::Image> loadImages(){
+    vector<sf::Image> images;
+    for(int i = 0; i < 10; i++){
+        sf::Image tmp;
+        tmp.loadFromFile("");
+    }
+    return images;
 }
