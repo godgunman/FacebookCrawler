@@ -29,6 +29,7 @@ def make_data_path():
 	    'data', 
 	    'data/users', 
 	    'data/posts',
+	    'data/profile',
 	    'data/users/'+user,
 	    get_feed_data_path(),
 	    get_posts_data_path()
