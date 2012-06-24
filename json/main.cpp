@@ -76,55 +76,85 @@ struct People{
     }
 };
 
-vector<People> people;
+vector<People> peoples;
 vector<string> userPosts;
-json_t *document;
-Json root;
-string userID;
 
 json_t* parsing(const char *jsonFilePath);
-void likes_mapping();
-void likes_most();
-void user_posts_saving();
+void likes_most(string);
+void likes_mapping(Json);
+void user_posts_saving(Json, string);
+void all_pepoles();
 
-int main(){
+
+void load_data(string userID) {
+
+    Json root;
+    json_t *document;
+
     DIR *dir;
     struct dirent *ptr;
-    const char *path = "./data/posts/";
+    const char *path = "../facebook/data/posts/";
     dir = opendir(path);
 
     int count = 0;
-    people.clear();
+    peoples.clear();
     userPosts.clear();
 
     document = NULL;
-    userID = "100000154563058";
 
     while((ptr = readdir(dir)) != NULL){
 	count++;
 	if(count <= 2);
 	else{
 	    string tmp = path;
-//	    printf("%s\n", ptr->d_name);
+	    //	    printf("%s\n", ptr->d_name);
 	    tmp += ptr->d_name;
 	    document = parsing((tmp + "/likes.json").c_str());
 	    if(document != NULL){
 		root = Json(document);
-		likes_mapping();
+		likes_mapping(root);
 		json_free_value(&document);
 	    }
 	    document = parsing((tmp + "/comments.json").c_str());
 	    if(document != NULL){
-		user_posts_saving();
+		root = Json(document);
+		user_posts_saving(root, userID);
 		json_free_value(&document);
 	    }        
 	}
     }
-    likes_most();
     closedir(dir);
+
+}
+
+int main(int argc, char* argv[]){
+
+    string userID = "100000154563058";
+
+    if(argc!=2) {
+	printf("error argument!! \n");
+	return 0;
+    }
+    
+    load_data(userID);
+
+    if( strcmp(argv[1],"like")== 0) {
+	likes_most(userID);
+    }
+    else if( strcmp(argv[1],"people")==0) {
+	all_pepoles();
+    }
+
     return 0;
 }
 
+void all_pepoles() {
+
+    for(int i=0;i<peoples.size();i++) {
+	printf("%s\n",peoples[i].id.c_str()); 
+    }
+
+}
 
 json_t* parsing(const char *jsonFilePath){
     FILE *fp;
@@ -132,6 +162,7 @@ json_t* parsing(const char *jsonFilePath){
     //printf("%s\n", jsonFilePath);
     fp = fopen(jsonFilePath,"r");
     if(fp == NULL){
+	printf("%s ",jsonFilePath);
 	printf("couldn't open the file!!\n");
 	return NULL;
     }
@@ -147,7 +178,7 @@ json_t* parsing(const char *jsonFilePath){
     return tmp;
 }
 
-void likes_mapping(){
+void likes_mapping(Json root){
     Json data = root.object_find("data");
     vector<Json> tmp = data.array_get();
     if(tmp.size() != 0){
@@ -157,33 +188,33 @@ void likes_mapping(){
 	    //cout << idString << endl;
 	    //if(idString == userID) printf("自讚！！\n");
 	    bool flag = false;
-	    for(int j = 0; j < people.size(); j++){
-		if(people[j].id == idString){
-		    people[j].likeTimes++;
+	    for(int j = 0; j < peoples.size(); j++){
+		if(peoples[j].id == idString){
+		    peoples[j].likeTimes++;
 		    flag = true;
 		}
 	    }
 	    if(!flag){
 		People tmp = (People) {idString, 1};
-		people.push_back(tmp);
+		peoples.push_back(tmp);
 	    }
 	}
     }
 }
 
-void likes_most(){
-    sort(people.begin(), people.end());
+void likes_most(string userID){
+    sort(peoples.begin(), peoples.end());
     printf("Most Like:\n");
     int cnt = 0;
-    for(int i = 0; i < people.size() && cnt < 10; i++){
-	if(people[i].id != userID){
+    for(int i = 0; i < peoples.size() && cnt < 10; i++){
+	if(peoples[i].id != userID){
 	    cnt++;
-	    printf("%s :%d likes!!\n", people[i].id.c_str(), people[i].likeTimes);
+	    printf("%s :%d likes!!\n", peoples[i].id.c_str(), peoples[i].likeTimes);
 	}
     }
 }
 
-void user_posts_saving(){
+void user_posts_saving(Json root, string userID){
     Json data = root.object_find("data");
     vector<Json> tmp = data.array_get();
     if(tmp.size() != 0){
